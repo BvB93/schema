@@ -218,8 +218,8 @@ class Regex(object):
                 return data
             else:
                 raise SchemaError("%r does not match %r" % (self, data), e)
-        except TypeError:
-            raise SchemaError("%r is not string nor buffer" % data, e)
+        except TypeError as x:
+            raise SchemaError("%r is not string nor buffer" % data, e) from x
 
 
 class Use(object):
@@ -241,10 +241,10 @@ class Use(object):
         try:
             return self._callable(data)
         except SchemaError as x:
-            raise SchemaError([None] + x.autos, [self._error.format(data) if self._error else None] + x.errors)
+            raise SchemaError([None] + x.autos, [self._error.format(data) if self._error else None] + x.errors) from x
         except BaseException as x:
             f = _callable_str(self._callable)
-            raise SchemaError("%s(%r) raised %r" % (f, data, x), self._error.format(data) if self._error else None)
+            raise SchemaError("%s(%r) raised %r" % (f, data, x), self._error.format(data) if self._error else None) from x
 
 
 COMPARABLE, CALLABLE, VALIDATOR, TYPE, DICT, ITERABLE = range(6)
@@ -394,7 +394,7 @@ class Schema(object):
                                 except SchemaError as x:
                                     k = "Key '%s' error:" % nkey
                                     message = self._prepend_schema_name(k)
-                                    raise SchemaError([message] + x.autos, [e] + x.errors)
+                                    raise SchemaError([message] + x.autos, [e] + x.errors) from x
                                 else:
                                     new[nkey] = nvalue
                                     coverage.add(skey)
@@ -430,22 +430,22 @@ class Schema(object):
             try:
                 return s.validate(data)
             except SchemaError as x:
-                raise SchemaError([None] + x.autos, [e] + x.errors)
+                raise SchemaError([None] + x.autos, [e] + x.errors) from x
             except BaseException as x:
                 message = "%r.validate(%r) raised %r" % (s, data, x)
                 message = self._prepend_schema_name(message)
-                raise SchemaError(message, self._error.format(data) if self._error else None)
+                raise SchemaError(message, self._error.format(data) if self._error else None) from x
         if flavor == CALLABLE:
             f = _callable_str(s)
             try:
                 if s(data):
                     return data
             except SchemaError as x:
-                raise SchemaError([None] + x.autos, [e] + x.errors)
+                raise SchemaError([None] + x.autos, [e] + x.errors) from x
             except BaseException as x:
                 message = "%s(%r) raised %r" % (f, data, x)
                 message = self._prepend_schema_name(message)
-                raise SchemaError(message, self._error.format(data) if self._error else None)
+                raise SchemaError(message, self._error.format(data) if self._error else None) from x
             message = "%s(%r) should evaluate to True" % (f, data)
             message = self._prepend_schema_name(message)
             raise SchemaError(message, e)
