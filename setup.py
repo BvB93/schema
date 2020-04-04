@@ -41,5 +41,5 @@ setup(
         "License :: OSI Approved :: MIT License",
     ],
     packages=['schema'],
-    package_data={'schema': ['py.typed', '__init__.pyi']},
+    package_data={'schema': ['typed.py', '*.pyi']},
 )
